@@ -4,14 +4,15 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <thread>
 
 
 
 
 
 // Constantes du programme
-const int WIN_WIDTH = 800;
-const int WIN_HEIGHT = 800;
+const int WIN_WIDTH = 1400;
+const int WIN_HEIGHT = 1400;
 
 // Namespaces
 using namespace sf;
@@ -21,6 +22,8 @@ using namespace std;
 void mainLoop();
 void generateMaze();
 void solveMaze();
+void searchMaze();
+void traceWay();
 Vector2i setNextPos(Vector2i pos);
 
 // struct cell
@@ -45,7 +48,7 @@ Cell maze[width][height];
 // rand
 random_device rd;
 mt19937 gen(rd());
-uniform_int_distribution<int> distribution(1, 24);
+uniform_int_distribution<int> distribution(1, 25);
 
 
 // solving:

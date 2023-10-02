@@ -23,21 +23,18 @@ int main()
 
 void mainLoop()
 {
-    window.clear(Color::White);
-    generateMaze();
-
     while (window.isOpen())
     {
-
-        Event event; // Variable pour gérer l'événement
-        // On boucle sur les événements
+        Event event;
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed)
                 window.close();
         }
 
-
+        window.clear(Color::White);
+        generateMaze();
+        solveMaze();
         window.display();
     }
 }
@@ -54,7 +51,7 @@ void generateMaze()
 
     RectangleShape rect = RectangleShape();
     rect.setPosition(50, 50);
-    rect.setSize({701, 701});
+    rect.setSize({WIN_WIDTH-99, WIN_HEIGHT-99});
     rect.setFillColor(Color::Black);
     window.draw(rect);
     int visitedCell = 0;
@@ -66,6 +63,7 @@ void generateMaze()
         pos = setNextPos(pos);
     }
 }
+
 
 void drawCell(Vector2i pos, Vector2i dir)
 {
@@ -146,16 +144,74 @@ void addPos(Vector2i pos)
     while (it != possiblePos.end() && weight >= it->weight) {
         ++it;
     }
-
     posWweight p = { pos.x, pos.y, weight };
     possiblePos.insert(it, p);
 }
 
+
 void solveMaze()
 {
-    
+    searchMaze();
+    traceWay();
+    this_thread::sleep_for(chrono::seconds(2));
 
-    
 }
 
+void searchMaze()
+{
+    possiblePos.clear();
+
+    Vector2i pos = startPos;
+    maze[pos.x][pos.y].visited = false;
+
+    RectangleShape rect = RectangleShape();
+    rect.setFillColor(Color(0, 0, 200));
+    rect.setSize(sizeCell - Vector2f(1, 1));
+
+    while (true)
+    {
+        if (pos == endPos)
+        {
+            break;
+        }
+
+        for (Vector2i p : maze[pos.x][pos.y].neighbors)
+        {
+
+            if (maze[p.x][p.y].visited)
+            {
+                maze[p.x][p.y].visited = false;
+                maze[p.x][p.y].from = pos;
+                addPos(p);
+            }
+        }
+
+        pos = Vector2i(possiblePos[0].x, possiblePos[0].y);
+        possiblePos.erase(possiblePos.begin());
+
+        rect.setPosition(51 + sizeCell.x * pos.x, 51 + sizeCell.y * pos.y);
+        window.draw(rect);
+        window.display();
+    }
+}
+
+void traceWay()
+{
+    RectangleShape rect = RectangleShape();
+    rect.setFillColor(Color(0, 200, 200));
+    rect.setSize(sizeCell - Vector2f(1, 1));
+
+    Vector2i pos = endPos;
+
+    while (true)
+    {
+        rect.setPosition(51 + sizeCell.x * pos.x, 51 + sizeCell.y * pos.y);
+        window.draw(rect);
+        window.display();
+
+        pos = maze[pos.x][pos.y].from;
+
+        if (pos == startPos) { break;  }
+    }
+}
 
