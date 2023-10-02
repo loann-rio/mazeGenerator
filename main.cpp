@@ -55,9 +55,16 @@ void generateMaze()
     RectangleShape rect = RectangleShape();
     rect.setPosition(50, 50);
     rect.setSize({701, 701});
+    rect.setFillColor(Color::Black);
     window.draw(rect);
+    int visitedCell = 0;
+    Vector2i pos = { 0, 0 };
 
-    setNextPos({ 0, 0 });
+    while (visitedCell < width * height)
+    {
+        if (!maze[pos.x][pos.y].visited) { visitedCell++; }
+        pos = setNextPos(pos);
+    }
 }
 
 void drawCell(Vector2i pos, Vector2i dir)
@@ -87,19 +94,18 @@ void drawCell(Vector2i pos, Vector2i dir)
     rect.setPosition(pX, pY);
     rect.setSize(Vector2f((float)sX, (float)sY));
     window.draw(rect);
-    window.display();
+    //window.display();
 }
 
-void setNextPos(Vector2i pos)
+Vector2i setNextPos(Vector2i pos)
 {
     maze[pos.x][pos.y].visited = true;
+    
 
     vector<Vector2i> v { {-1, 0}, { 1, 0 }, { 0, -1 }, { 0, 1 }};
 
     // Shuffle the vector
     shuffle(v.begin(), v.end(), gen);
-   
-    bool stuck = true;
 
     for (Vector2i dir : v)
     {
@@ -108,39 +114,48 @@ void setNextPos(Vector2i pos)
             pos.x + dir.x < width && pos.y + dir.y < height) 
         {
             if (!maze[pos.x + dir.x][pos.y + dir.y].visited)
-            {
-                stuck = false;
-                
+            {                
                 drawCell(pos, dir);
                 maze[pos.x][pos.y].neighbors.emplace_back(Vector2i(pos.x + dir.x, pos.y + dir.y));
                 maze[pos.x + dir.x][pos.y + dir.y].neighbors.emplace_back(Vector2i(pos.x, pos.y));
-
-
-                setNextPos(pos + dir);
+                maze[pos.x + dir.x][pos.y + dir.y].from = pos;
+                return pos + dir;
             }
             else if(distribution(gen) == 1)
             {
                 drawCell(pos, dir);
-
                 maze[pos.x][pos.y].neighbors.emplace_back(Vector2i(pos.x + dir.x, pos.y + dir.y));
                 maze[pos.x + dir.x][pos.y + dir.y].neighbors.emplace_back(Vector2i(pos.x, pos.y));
             }
         }        
     }
 
-    if (stuck)
-    {
-        RectangleShape rect = RectangleShape();
-        rect.setFillColor(Color(200, 200, 200));
-        rect.setPosition(51 + sizeCell.x * pos.x, 51 + sizeCell.y * pos.y);
-        rect.setSize(sizeCell - Vector2f(1,1));
-        window.draw(rect);
+    RectangleShape rect = RectangleShape();
+    rect.setFillColor(Color(200, 200, 200));
+    rect.setPosition(51 + sizeCell.x * pos.x, 51 + sizeCell.y * pos.y);
+    rect.setSize(sizeCell - Vector2f(1,1));
+    window.draw(rect);
+    return maze[pos.x][pos.y].from;
+    
+}
+
+void addPos(Vector2i pos)
+{
+    float weight = sqrtf(powf(startPos.x - pos.x, 2) + powf(startPos.y - pos.y, 2)) + sqrtf(powf(endPos.x - pos.x, 2) + powf(endPos.y - pos.y, 2));
+    auto it = possiblePos.begin();
+    while (it != possiblePos.end() && weight >= it->weight) {
+        ++it;
     }
+
+    posWweight p = { pos.x, pos.y, weight };
+    possiblePos.insert(it, p);
 }
 
 void solveMaze()
 {
+    
 
+    
 }
 
 

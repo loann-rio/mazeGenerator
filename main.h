@@ -21,7 +21,7 @@ using namespace std;
 void mainLoop();
 void generateMaze();
 void solveMaze();
-void setNextPos(Vector2i pos);
+Vector2i setNextPos(Vector2i pos);
 
 // struct cell
 struct Cell
@@ -32,13 +32,13 @@ struct Cell
 };
 
 // maze
-const int width = 10;
-const int height = 10;
+const int width = 100;
+const int height = 100;
 
 Vector2i startPos = { 0, 0 };
 Vector2i endPos = { width-1, height-1 };
 
-Vector2f sizeCell = Vector2f(700 / width, 700 / width);
+Vector2f sizeCell = Vector2f((WIN_WIDTH-100) / width, (WIN_HEIGHT-100) / width);
 
 Cell maze[width][height];
 
@@ -48,4 +48,6 @@ mt19937 gen(rd());
 uniform_int_distribution<int> distribution(1, 24);
 
 
-
+// solving:
+struct posWweight { int x; int y; float weight; };
+vector<posWweight> possiblePos;
