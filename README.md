@@ -7,4 +7,4 @@ To generate the maze a point is moved in the empty space, it can only go in an e
 To make the maze easier, there is a small chance of breaking a wall between two visited cells.
 
 # solving
-to solve the maze, A* algorithm is used
+to solve the maze, dijkstra algorithm is used
